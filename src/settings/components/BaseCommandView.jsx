@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { Autocomplete, Checkbox, FormControlLabel, MenuItem, TextField } from '@mui/material';
 import { useTranslation } from '../../common/components/LocalizationProvider';
 import { useRestriction } from '../../common/util/permissions';
-//import { useEffectAsync } from '../../reactHelper';
 import fetchOrThrow from '../../common/util/fetchOrThrow';
 import { prefixString } from '../../common/util/stringUtils';
 import useCommandAttributes from '../../common/attributes/useCommandAttributes';
@@ -27,20 +26,21 @@ const BaseCommandView = ({
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
-    if (includeSaved) {
-      const savedResponse = await fetchOrThrow(`/api/commands/send?deviceId=${deviceId}`);
-      const saved = await savedResponse.json();
-      let combined = saved.map((it) => ({ ...it, optionType: 'saved', key: `saved-${it.id}` }));
-      if (!limitCommands) {
-        const typesResponse = await fetchOrThrow(
-          `/api/commands/types?${new URLSearchParams({ deviceId }).toString()}`,
-        );
+    const fetchData = async () => {
+      if (includeSaved) {
+        const savedResponse = await fetchOrThrow(`/api/commands/send?deviceId=${deviceId}`);
+        const saved = await savedResponse.json();
+        let combined = saved.map((it) => ({ ...it, optionType: 'saved', key: `saved-${it.id}` }));
+        if (!limitCommands) {
+          const typesResponse = await fetchOrThrow(
+            `/api/commands/types?${new URLSearchParams({ deviceId }).toString()}`,
+          );
 
 	//comandos por default
-        const types = await typesResponse.json();
-        combined = combined.concat(
-          types.map((it) => ({ ...it, optionType: 'type', key: `type-${it.type}` })),
-        );
+          const types = await typesResponse.json();
+          combined = combined.concat(
+            types.map((it) => ({ ...it, optionType: 'type', key: `type-${it.type}` })),
+          );
 
 	//Quitar comandos por default
 	//const types = await typesResponse.json();
@@ -53,13 +53,15 @@ const BaseCommandView = ({
 
 
 
+        }
+        setOptions(combined);
+      } else {
+        const typesResponse = await fetchOrThrow('/api/commands/types');
+        const types = await typesResponse.json();
+        setOptions(types.map((it) => ({ ...it, optionType: 'type', key: `type-${it.type}` })));
       }
-      setOptions(combined);
-    } else {
-      const typesResponse = await fetchOrThrow('/api/commands/types');
-      const types = await typesResponse.json();
-      setOptions(types.map((it) => ({ ...it, optionType: 'type', key: `type-${it.type}` })));
-    }
+    };
+    fetchData();
   }, [deviceId, includeSaved, limitCommands]);
 
   useEffect(() => {
