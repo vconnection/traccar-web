@@ -186,14 +186,24 @@ export default (t) =>
         name: t('positionOutput'),
         type: 'number',
       },
+      //out1: {
+      //  name: `${t('positionOutput')} 1`,
+      //  type: 'boolean',
+      //},
       out1: {
-        name: `${t('positionOutput')} 1`,
+        name: `Control de motor`,
         type: 'boolean',
       },
+
+      //out2: {
+       // name: `${t('positionOutput')} 2`,
+        //type: 'boolean',
+      //},
       out2: {
-        name: `${t('positionOutput')} 2`,
+        name: `Salida 2`,
         type: 'boolean',
       },
+
       out3: {
         name: `${t('positionOutput')} 3`,
         type: 'boolean',
@@ -394,8 +404,110 @@ export default (t) =>
       speedLimit: {
         name: t('attributeSpeedLimit'),
         type: 'number',
-        dataType: 'speed',
+        subtype: 'speed',
       },
+
+
+
+	// --- GPS Istartek - Permanent I/O ---
+
+
+       output: {
+        name: `Control de motor`,
+        type: 'boolean',
+       },
+
+
+
+
+      // --- Teltonika FMC003 / FMC130 - Permanent I/O ---
+      io239: { name: 'Ignicion (IO)', type: 'boolean' },
+      io240: { name: 'Movimiento (IO)', type: 'boolean' },
+      io80:  { name: 'Modo de Datos', type: 'number' },
+      io21:  { name: 'Señal GSM', type: 'number' },
+      io200: { name: 'Modo Sleep', type: 'number' },
+      io69:  { name: 'Estado GNSS', type: 'number' },
+      io181: { name: 'GNSS PDOP', type: 'number' },
+      io182: { name: 'GNSS HDOP', type: 'number' },
+      io66:  { name: 'Voltaje Externo (V)', type: 'number', dataType: 'voltage' },
+      io24:  { name: 'Velocidad GNSS', type: 'number', dataType: 'speed' },
+      io205: { name: 'GSM Cell ID', type: 'number' },
+      io206: { name: 'GSM Area Code', type: 'number' },
+      io67:  { name: 'GNSS HDOP (raw)', type: 'number' },
+      io68:  { name: 'GNSS PDOP (raw)', type: 'number' },
+      io16:  { name: 'Odómetro Total (IO)', type: 'number', dataType: 'distance' },
+      io41:  { name: 'Voltaje Total (mV)', type: 'number' },
+      io9:   { name: 'Entrada Analógica 1', type: 'number' },
+      io6:   { name: 'Voltaje Batería Interna (mV)', type: 'number' },
+      io113: { name: 'Nivel Batería Interna (%)', type: 'number', dataType: 'percentage' },
+      io12:  { name: 'Corriente de Carga (mA)', type: 'number' },
+      io13:  { name: 'Estado de Carga', type: 'number' },
+      io17:  { name: 'Corriente Batería (mA)', type: 'number' },
+      io199: { name: 'Trip Odometro', type: 'number', dataType: 'distance' },
+      io175: { name: 'Auto Geofence', type: 'number' },
+      io252: { name: 'Detección Manipulación', type: 'number' },
+      io253: { name: 'Eco Driving Score', type: 'number' },
+      io254: { name: 'Tipo Eco Driving', type: 'number' },
+      io255: { name: 'Valor Eco Driving', type: 'number' },
+      io236: { name: 'Tiempo en Ralenti (s)', type: 'number' },
+      io237: { name: 'Distancia en Ralenti', type: 'number', dataType: 'distance' },
+      io246: { name: 'Tiempo de Trayecto (s)', type: 'number' },
+      io247: { name: 'Distancia de Trayecto', type: 'number', dataType: 'distance' },
+      io248: { name: 'Tiempo de Conduccion (s)', type: 'number' },
+      io249: { name: 'Tiempo de Parada (s)', type: 'number' },
+      io250: { name: 'Estado de Trayecto', type: 'number' },
+      io251: { name: 'Deteccion Desconexion', type: 'number' },
+      io256: { name: 'VIN (IO)', type: 'string' },
+      io11:  { name: 'ICCID 1', type: 'string' },
+      io14:  { name: 'ICCID 2', type: 'string' },
+      io10:  { name: 'Numero SD', type: 'number' },
+      io15:  { name: 'Eco Score', type: 'number' },
+      io19:  { name: 'Angulo GNSS', type: 'number' },
+      io385: { name: 'Garmin Conectado', type: 'boolean' },
+
+      // --- Teltonika FMC003 / FMC130 - OBD Elements ---
+      io31:  { name: 'OBD Temp. Refrigerante (°C)', type: 'number' },
+      io32:  { name: 'OBD Torque Motor (%)', type: 'number' },
+      io33:  { name: 'OBD Velocidad', type: 'number', dataType: 'speed' },
+      io34:  { name: 'OBD Carga Motor (%)', type: 'number' },
+      io35:  { name: 'OBD Nivel Combustible (%)', type: 'number' },
+      io36:  { name: 'OBD RPM Motor', type: 'number' },
+      io37:  { name: 'OBD Presion Combustible', type: 'number' },
+      io38:  { name: 'OBD Posicion Acelerador (%)', type: 'number' },
+      io39:  { name: 'OBD Voltaje Bateria', type: 'number', dataType: 'voltage' },
+      io40:  { name: 'OBD Distancia con MIL activo', type: 'number', dataType: 'distance' },
+      io42:  { name: 'OBD Consumo Combustible', type: 'number' },
+      io43:  { name: 'OBD Numero de DTCs', type: 'number' },
+      io44:  { name: 'OBD Control Modulo Potencia', type: 'number' },
+      io45:  { name: 'OBD Presion Admision (kPa)', type: 'number' },
+      io46:  { name: 'OBD Tiempo Encendido (s)', type: 'number' },
+      io47:  { name: 'OBD Presion Atmosferica', type: 'number' },
+      io48:  { name: 'OBD Temp. Aceite Motor (°C)', type: 'number' },
+      io49:  { name: 'OBD Tiempo Ralenti (s)', type: 'number' },
+      io50:  { name: 'OBD Carga Combustible Abs.', type: 'number' },
+      io51:  { name: 'OBD Estado Motor', type: 'number' },
+      io53:  { name: 'OBD Presion Escape', type: 'number' },
+      io54:  { name: 'OBD Nivel Aceite (%)', type: 'number' },
+      io55:  { name: 'OBD Presion Aceite', type: 'number' },
+      io56:  { name: 'OBD Estado Bateria Hibrida', type: 'number' },
+      io57:  { name: 'OBD Vida Bateria Hibrida (%)', type: 'number' },
+      io58:  { name: 'OBD Temp. Aceite (°C)', type: 'number' },
+
+      // --- Teltonika FMC003 - OBD OEM Elements ---
+      io389: { name: 'OEM Odómetro Total (km)', type: 'number', dataType: 'distance' },
+      io390: { name: 'OEM Nivel Combustible (L)', type: 'number' },
+      io402: { name: 'OEM Dist. Prox. Servicio (km)', type: 'number', dataType: 'distance' },
+      io410: { name: 'OEM Estado Carga Batería', type: 'number' },
+      io411: { name: 'OEM Nivel Carga Bateria (%)', type: 'number', dataType: 'percentage' },
+
+      // --- Teltonika FMC130 - Entradas/Salidas Digitales ---
+      io1:   { name: 'Entrada Digital 1', type: 'boolean' },
+      io2:   { name: 'Entrada Digital 2', type: 'boolean' },
+      io3:   { name: 'Entrada Digital 3', type: 'boolean' },
+      io4:   { name: 'Entrada Digital 4', type: 'boolean' },
+      io179: { name: 'Salida Digital 1', type: 'boolean' },
+      io180: { name: 'Salida Digital 2', type: 'boolean' },
+      io178: { name: 'Entrada Analogica 1 (mV)', type: 'number' },
     }),
     [t],
   );
