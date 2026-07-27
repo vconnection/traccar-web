@@ -1,7 +1,6 @@
-import { grey } from '@mui/material/colors';
+import { grey, orange } from '@mui/material/colors';
 import { createTheme } from '@mui/material';
 import { loadImage, prepareIcon } from './mapUtil';
-
 import directionSvg from '../../resources/images/direction.svg';
 import backgroundSvg from '../../resources/images/background.svg';
 import animalSvg from '../../resources/images/icon/animal.svg';
@@ -69,6 +68,7 @@ export const mapImages = {};
 const theme = createTheme({
   palette: {
     neutral: { main: grey[500] },
+    orange: { main: orange[700] },
   },
 });
 
@@ -79,7 +79,7 @@ export default async () => {
   await Promise.all(
     Object.keys(mapIcons).map(async (category) => {
       const results = [];
-      ['info', 'success', 'error', 'neutral'].forEach((color) => {
+      ['info', 'success', 'error', 'neutral', 'orange'].forEach((color) => {
         results.push(
           loadImage(mapIcons[category]).then((icon) => {
             mapImages[`${category}-${color}`] = prepareIcon(
