@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Autocomplete, Checkbox, FormControlLabel, MenuItem, TextField } from '@mui/material';
 import { useTranslation } from '../../common/components/LocalizationProvider';
 import { useRestriction } from '../../common/util/permissions';
-import { useEffectAsync } from '../../reactHelper';
+//import { useEffectAsync } from '../../reactHelper';
 import fetchOrThrow from '../../common/util/fetchOrThrow';
 import { prefixString } from '../../common/util/stringUtils';
 import useCommandAttributes from '../../common/attributes/useCommandAttributes';
@@ -26,7 +26,7 @@ const BaseCommandView = ({
   const [attributes, setAttributes] = useState([]);
   const [options, setOptions] = useState([]);
 
-  useEffectAsync(async () => {
+  useEffect(() => {
     if (includeSaved) {
       const savedResponse = await fetchOrThrow(`/api/commands/send?deviceId=${deviceId}`);
       const saved = await savedResponse.json();
