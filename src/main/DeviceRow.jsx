@@ -16,8 +16,13 @@ import BatteryCharging60Icon from '@mui/icons-material/BatteryCharging60';
 import Battery20Icon from '@mui/icons-material/Battery20';
 import BatteryCharging20Icon from '@mui/icons-material/BatteryCharging20';
 import ErrorIcon from '@mui/icons-material/Error';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import CarRentalIcon from '@mui/icons-material/CarRental';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { orange } from '@mui/material/colors';
 import { devicesActions } from '../store';
 import {
   formatAlarm,
@@ -65,6 +70,15 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const getAvatarColor = (item, position) => {
+  if (item.status !== 'online') return '#9e9e9e';
+  const ignition = position?.attributes?.ignition;
+  const motion = position?.attributes?.motion;
+  if (!ignition) return '#f44336';
+  if (!motion) return orange[700];
+  return '#4caf50';
+};
+
 const DeviceRow = ({ devices, index, style }) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
@@ -109,7 +123,7 @@ const DeviceRow = ({ devices, index, style }) => {
         {secondaryValue && (
           <>
             {secondaryValue}
-            {' • '}
+            {' \u2022 '}
           </>
         )}
         <span className={classes[getStatusColor(item.status)]}>{status}</span>
@@ -127,7 +141,7 @@ const DeviceRow = ({ devices, index, style }) => {
         className={selectedDeviceId === item.id ? classes.selected : null}
       >
         <ListItemAvatar>
-          <Avatar>
+          <Avatar sx={{ bgcolor: getAvatarColor(item, position) }}>
             <img className={classes.icon} src={mapIcons[mapIconKey(item.category)]} alt="" />
           </Avatar>
         </ListItemAvatar>
@@ -152,19 +166,100 @@ const DeviceRow = ({ devices, index, style }) => {
                 </IconButton>
               </Tooltip>
             )}
+
             {position.attributes.hasOwnProperty('ignition') && (
               <Tooltip
                 title={`${t('positionIgnition')}: ${formatBoolean(position.attributes.ignition, t)}`}
               >
                 <IconButton size="small">
-                  {position.attributes.ignition ? (
+                  {position.attributes.ignition && position.attributes.motion ? (
                     <EngineIcon width={20} height={20} className={classes.success} />
+                  ) : position.attributes.ignition && !position.attributes.motion ? (
+                    <EngineIcon width={20} height={20} style={{ color: orange[700] }} />
                   ) : (
                     <EngineIcon width={20} height={20} className={classes.neutral} />
                   )}
                 </IconButton>
               </Tooltip>
             )}
+
+            {/* ============================================
+                OPCION A: CarRentalIcon (ACTIVA)
+                out1 = true  ? Motor Cortado (rojo)
+                out1 = false ? Motor Habilitado (verde)
+                Para invertir: intercambiar error/success
+            ============================================ */}
+            {position.attributes.hasOwnProperty('out1') && (
+              <Tooltip title={`Motor: ${position.attributes.out1 ? 'Cortado' : 'Habilitado'}`}>
+                <IconButton size="small">
+                  {position.attributes.out1 ? (
+                    <CarRentalIcon fontSize="small" className={classes.error} />
+                  ) : (
+                    <CarRentalIcon fontSize="small" className={classes.success} />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {/* ============================================
+                OPCION B: Candado (COMENTADA)
+                out1 = true  ? Motor Cortado (candado cerrado, rojo)
+                out1 = false ? Motor Habilitado (candado abierto, verde)
+                Para activar: descomentar este bloque y comentar OPCION A
+            ============================================
+            {position.attributes.hasOwnProperty('out1') && (
+              <Tooltip title={`Motor: ${position.attributes.out1 ? 'Cortado' : 'Habilitado'}`}>
+                <IconButton size="small">
+                  {position.attributes.out1 ? (
+                    <LockIcon fontSize="small" className={classes.error} />
+                  ) : (
+                    <LockOpenIcon fontSize="small" className={classes.success} />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+            */}
+
+
+		{position.attributes.hasOwnProperty('output') && (
+  <Tooltip title={`Motor: ${position.attributes.output ? 'Cortado' : 'Habilitado'}`}>
+    <IconButton size="small">
+      {position.attributes.output ? (
+        <CarRentalIcon fontSize="small" className={classes.error} />
+      ) : (
+        <CarRentalIcon fontSize="small" className={classes.success} />
+      )}
+    </IconButton>
+  </Tooltip>
+)}
+
+
+
+
+
+
+
+
+	{position.attributes.hasOwnProperty('in2') && (
+  // MeetingRoomIcon: lee el estado de la Entrada 2 (in2)
+  // in2 = true  ? Puerta Abierta (verde)
+  // in2 = false ? Puerta Cerrada (rojo)
+  <Tooltip title={`Puerta: ${position.attributes.in2 ? 'Abierta' : 'Cerrada'}`}>
+    <IconButton size="small">
+      {position.attributes.in2 ? (
+        <MeetingRoomIcon fontSize="small" className={classes.success} />
+      ) : (
+        <MeetingRoomIcon fontSize="small" className={classes.error} />
+      )}
+    </IconButton>
+  </Tooltip>
+)}
+
+
+
+
+
+
             {position.attributes.hasOwnProperty('batteryLevel') && (
               <Tooltip
                 title={`${t('positionBatteryLevel')}: ${formatPercentage(position.attributes.batteryLevel)}`}
