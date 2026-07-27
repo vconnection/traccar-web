@@ -1,13 +1,22 @@
-import { useId, useCallback, useEffect, useRef } from 'react';
+import { useId, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { map } from './core/MapView';
-import { formatTime, getStatusColor } from '../common/util/formatter';
+import { formatTime } from '../common/util/formatter';
 import { mapIconKey } from './core/preloadImages';
 import { useAttributePreference } from '../common/util/preferences';
 import { useCatchCallback } from '../reactHelper';
-import { findFonts, fromMapCoordinates, toMapCoordinates } from './core/mapUtil';
+import { findFonts } from './core/mapUtil';
+
+const getDeviceColor = (device, position) => {
+  if (device.status !== 'online') return 'neutral';
+  const ignition = position.attributes?.ignition;
+  const motion = position.attributes?.motion;
+  if (!ignition) return 'error';
+  if (!motion) return 'orange';
+  return 'success';
+};
 
 const MapPositions = ({
   positions,
@@ -16,7 +25,6 @@ const MapPositions = ({
   showStatus,
   selectedPosition,
   titleField,
-  disabled,
 }) => {
   const id = useId();
   const clusters = `${id}-clusters`;
@@ -32,37 +40,31 @@ const MapPositions = ({
   const mapCluster = useAttributePreference('mapCluster', true);
   const directionType = useAttributePreference('mapDirection', 'selected');
 
-  const disabledRef = useRef(disabled);
-  disabledRef.current = disabled;
-
-  const createFeature = useCallback(
-    (devices, position, selectedPositionId) => {
-      const device = devices[position.deviceId];
-      let showDirection;
-      switch (directionType) {
-        case 'none':
-          showDirection = false;
-          break;
-        case 'all':
-          showDirection = position.course > 0;
-          break;
-        default:
-          showDirection = selectedPositionId === position.id && position.course > 0;
-          break;
-      }
-      return {
-        id: position.id,
-        deviceId: position.deviceId,
-        name: device.name,
-        fixTime: formatTime(position.fixTime, 'seconds'),
-        category: mapIconKey(device.category),
-        color: showStatus ? position.attributes.color || getStatusColor(device.status) : 'neutral',
-        rotation: position.course,
-        direction: showDirection,
-      };
-    },
-    [directionType, showStatus],
-  );
+  const createFeature = (devices, position, selectedPositionId) => {
+    const device = devices[position.deviceId];
+    let showDirection;
+    switch (directionType) {
+      case 'none':
+        showDirection = false;
+        break;
+      case 'all':
+        showDirection = position.course > 0;
+        break;
+      default:
+        showDirection = selectedPositionId === position.id && position.course > 0;
+        break;
+    }
+    return {
+      id: position.id,
+      deviceId: position.deviceId,
+      name: device.name,
+      fixTime: formatTime(position.fixTime, 'seconds'),
+      category: mapIconKey(device.category),
+      color: showStatus ? position.attributes.color || getDeviceColor(device, position) : 'neutral',
+      rotation: position.course,
+      direction: showDirection,
+    };
+  };
 
   const onMouseEnter = () => (map.getCanvas().style.cursor = 'pointer');
   const onMouseLeave = () => (map.getCanvas().style.cursor = '');
@@ -70,8 +72,7 @@ const MapPositions = ({
   const onMapClickCallback = useCallback(
     (event) => {
       if (!event.defaultPrevented && onMapClick) {
-        const [longitude, latitude] = fromMapCoordinates(event.lngLat.lng, event.lngLat.lat);
-        onMapClick(latitude, longitude);
+        onMapClick(event.lngLat.lat, event.lngLat.lng);
       }
     },
     [onMapClick],
@@ -79,7 +80,6 @@ const MapPositions = ({
 
   const onMarkerClickCallback = useCallback(
     (event) => {
-      if (disabledRef.current) return;
       event.preventDefault();
       const feature = event.features[0];
       if (onMarkerClick) {
@@ -91,7 +91,6 @@ const MapPositions = ({
 
   const onClusterClick = useCatchCallback(
     async (event) => {
-      if (disabledRef.current) return;
       event.preventDefault();
       const features = map.queryRenderedFeatures(event.point, {
         layers: [clusters],
@@ -103,7 +102,7 @@ const MapPositions = ({
         zoom,
       });
     },
-    [clusters, id],
+    [clusters],
   );
 
   useEffect(() => {
@@ -144,7 +143,7 @@ const MapPositions = ({
         },
         paint: {
           'text-halo-color': 'white',
-          'text-halo-width': 1,
+          'text-halo-width': 2,
         },
       });
       map.addLayer({
@@ -210,17 +209,7 @@ const MapPositions = ({
         }
       });
     };
-  }, [
-    mapCluster,
-    clusters,
-    onMarkerClickCallback,
-    onClusterClick,
-    onMapClickCallback,
-    iconScale,
-    id,
-    selected,
-    titleField,
-  ]);
+  }, [mapCluster, clusters, onMarkerClickCallback, onClusterClick]);
 
   useEffect(() => {
     [id, selected].forEach((source) => {
@@ -235,25 +224,13 @@ const MapPositions = ({
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: toMapCoordinates(position.longitude, position.latitude),
+              coordinates: [position.longitude, position.latitude],
             },
             properties: createFeature(devices, position, selectedPosition && selectedPosition.id),
           })),
       });
     });
-  }, [
-    mapCluster,
-    clusters,
-    onMarkerClick,
-    onClusterClick,
-    devices,
-    positions,
-    selectedPosition,
-    createFeature,
-    id,
-    selected,
-    selectedDeviceId,
-  ]);
+  }, [mapCluster, clusters, onMarkerClick, onClusterClick, devices, positions, selectedPosition]);
 
   return null;
 };
